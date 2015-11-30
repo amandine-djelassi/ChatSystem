@@ -5,12 +5,14 @@ import java.net.UnknownHostException;
 
 import chatController.ChatController;
 import chatController.ChatNiToChatController;
+import model.User;
 
 //ne pas importer java.net dans ChatNI pour avoir un code "propre"  
 public class ChatNI implements  FromToRemoteApp, ChatControllerToChatNI{
 	
 	private UDPSender sender;
 	private UDPReceiver receiver;
+	private User user;
 	
 	private ChatNiToChatController niToController;
 	
@@ -23,7 +25,8 @@ public class ChatNI implements  FromToRemoteApp, ChatControllerToChatNI{
 	
 	//dire au controller qu'on a reçu un hello
 	public void hello(String nickname, Boolean reqReply, InetAddress address){
-		niToController.onHello(nickname, address);
+		user = new User(nickname, address);
+		niToController.onHello(user);
 		if (reqReply == true) {
 			sendHello("reponse",false); //reponse  = nickname de a qui on envoie
 		}	
@@ -36,7 +39,7 @@ public class ChatNI implements  FromToRemoteApp, ChatControllerToChatNI{
 	
 
 	public void bye(InetAddress address){
-		niToController.onBye(address) ; 
+		niToController.onBye(address) ;//recherche la liste  
 		
 	}
 	

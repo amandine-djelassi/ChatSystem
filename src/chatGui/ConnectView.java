@@ -43,8 +43,6 @@ public class ConnectView extends JFrame implements ActionListener{
 		if(source == connect){
 			nick = 	this.textNickname.getText();
 			gui.connect(nick);
-			//ouvrir nouvelle fenetre 
-			
 		}		
 	}
 }

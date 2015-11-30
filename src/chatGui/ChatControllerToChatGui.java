@@ -1,8 +1,10 @@
 package chatGui;
 
+import model.User;
+
 public interface ChatControllerToChatGui {
-	public void receiveMessage(String nickname, String message);
-	public void notifConnected(String nickname);
-	public void notifDisconnected(String nickname);
+	public void receiveMessage(User user, String message);
+	public void notifConnected(User user);
+	public void notifDisconnected(User user);
 
 }

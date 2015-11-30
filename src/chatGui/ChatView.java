@@ -2,117 +2,169 @@ package chatGui;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.List;
+
 import javax.swing.*;
 
+import model.User;
+
 public class ChatView extends JFrame implements ActionListener{
+	private JPanel disconnect;
 	private JButton bDisconnect;
 	private JButton bSend;
-	private JLabel nickname;
+	private JPanel send;
 	private JTextArea textToSend;
-	private JTextArea textReceived;
-	private String nick;
+	public JTextArea textReceived;
+	private String mess;
 	private ChatGui gui;
 	private JList list;
-	
+	private DefaultListModel<String> listModel;
+	private List<User> userList; 
 	
 	public ChatView(ChatGui gui){
 		this.gui = gui;
 		initComponent();
 	}
 	
-	private void initComponent(){		
-		/*list = new JList(gui.getUserList());
+	public void refreshUserList(List<String> userList) {
+		listModel.removeAllElements();
+		for(String user : userList){
+			listModel.addElement(user);
+		}
+	}
+	
+	private void initComponent(){
+		listModel = new DefaultListModel<String>();
+		list = new JList<String>();
 		list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		list.setLayoutOrientation(JList.VERTICAL);
 		JScrollPane listScroller = new JScrollPane(list);
-		*/
-		bSend = new JButton ("send ");
-		bDisconnect = new JButton ("Disconnect ");
+		listScroller.setBorder(null);
+		
+		bSend = new JButton ("Send");
+		bSend.addActionListener(this);
+		send = new JPanel();
+		send.setBackground(Color.WHITE);
+
+		bDisconnect = new JButton ("Disconnect");
+		bDisconnect.addActionListener(this);
+		disconnect = new JPanel();
+		disconnect.setBackground(Color.WHITE);
+
 		textToSend = new JTextArea();
+		textToSend.setLineWrap(true);
+		textToSend.setBorder(BorderFactory.createLineBorder(Color.black));
+		JScrollPane textToSendScroller = new JScrollPane(textToSend);
+		
 		textReceived = new JTextArea();
-	/*	
-		this.setLayout(new GridLayout(1, 1));
-	    this.getContentPane().add(list);
-	    */
-		this.setTitle("Chat Sytem");
+		textReceived.setLineWrap(true);	
+		textReceived.setEnabled(false);
+		textReceived.setDisabledTextColor(Color.BLACK);
+		textReceived.setBorder(BorderFactory.createLineBorder(Color.black));
+		JScrollPane textReceivedScroller = new JScrollPane(textReceived);
 		
-		this.setSize(900, 600);
-		this.setLocationRelativeTo(null);
-		
-		//On crée nos différents conteneurs
-		JPanel bDisconnect = new JPanel();
-		bDisconnect.setPreferredSize(new Dimension(180,60));
-		bDisconnect.setBackground(Color.black);
-		JPanel listUser = new JPanel();
-		listUser.setPreferredSize(new Dimension(180,540));
-		listUser.setBackground(Color.BLUE);
-		JPanel fenetre = new JPanel();
-		fenetre.setPreferredSize(new Dimension(720,420));
-		fenetre.setBackground(Color.DARK_GRAY);
-		JPanel ecrire = new JPanel();
-		ecrire.setPreferredSize(new Dimension(720,180));
-		ecrire.setBackground(Color.GREEN);
-		JPanel bSend = new JPanel();
-		bSend.setPreferredSize(new Dimension(180,60));
-		bSend.setBackground(Color.MAGENTA);
-		
-		//le coteneur principal
-		JPanel content = new JPanel();
-		content.setPreferredSize(new Dimension(900,600));
-		content.setLayout(new GridBagLayout());
-		GridBagConstraints gbc = new GridBagConstraints();
-		
-		//on positionnela case d edépart du composant 
-		gbc.gridx=0;
-		gbc.gridy=0;
-		//la taille en hauteur et en largeur
-		gbc.gridheight=2;
+		this.setTitle("Chat System");
+
+		GridBagLayout repartiteur = new GridBagLayout();
+	    GridBagConstraints gbc;
+	    Container interieur = getContentPane();
+	    interieur.setLayout(repartiteur); 
+	    
+	    gbc = new GridBagConstraints();
+	    gbc.gridx = 0;
+	    gbc.gridy = 0;
+	    gbc.gridheight=1;
 		gbc.gridwidth=3;
-		content.add(bDisconnect, gbc);
-		
-		//--------
-		gbc.gridx=0;
-		gbc.gridy=2;
-		gbc.gridheight=8;
+		gbc.anchor = GridBagConstraints.NORTH;
+		gbc.fill = GridBagConstraints.BOTH;
+		gbc.insets = new Insets(10, 10, 10, 10);
+	    gbc.ipady = 30;
+	    repartiteur.setConstraints(bDisconnect, gbc);
+	    interieur.add(bDisconnect);
+	    
+	    gbc = new GridBagConstraints();
+	    gbc.gridx = 0;
+	    gbc.gridy = 0;
+	    gbc.gridwidth = 1;
+	    gbc.gridheight = 3;
+	    gbc.fill = GridBagConstraints.BOTH;
+	    gbc.weightx = 0.2;
+	    repartiteur.setConstraints(disconnect, gbc);
+	    interieur.add(disconnect);
+	    
+	    gbc = new GridBagConstraints();
+	    gbc.gridx = 0;
+	    gbc.gridy = 9;
+	    gbc.gridheight=1;
 		gbc.gridwidth=3;
-		content.add(listUser, gbc);
-		//--------
-		gbc.gridx=3;
+		gbc.anchor = GridBagConstraints.SOUTH;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.insets = new Insets(10, 10, 10, 10);
+	    gbc.ipady = 30;
+	    repartiteur.setConstraints(bSend, gbc);
+	    interieur.add(bSend);
+	    
+	    gbc = new GridBagConstraints();
+	    gbc.gridx = 0;
+	    gbc.gridy = 9;
+	    gbc.gridwidth = 1;
+	    gbc.gridheight = 3;
+	    gbc.fill = GridBagConstraints.BOTH;
+	    gbc.weightx = 0.2;
+	    repartiteur.setConstraints(send, gbc);
+	    interieur.add(send);
+	    
+	    gbc = new GridBagConstraints();
+	    gbc.gridx = 0;
+	    gbc.gridy = 1;
+	    gbc.gridwidth = 3;
+	    gbc.gridheight = 8;
+	    gbc.fill = GridBagConstraints.BOTH;
+	    gbc.weightx = 0.2;
+	    gbc.weighty = 0.7;
+	    repartiteur.setConstraints(listScroller, gbc);
+	    interieur.add(listScroller);
+	    
+    	gbc = new GridBagConstraints();
+	    gbc.gridx=3;
 		gbc.gridy=0;
 		gbc.gridheight=7;
-		//Cette instruction informe le layout que c'est une fin de ligne
-		gbc.gridwidth=GridBagConstraints.REMAINDER;
-		content.add(fenetre, gbc);
-		//--------
-		gbc.gridx=3;
-		gbc.gridy=7;
-		gbc.gridheight=3;
-		gbc.gridwidth=GridBagConstraints.REMAINDER;
-		content.add(ecrire, gbc);
-		//--------
-		gbc.gridx=12;
-		gbc.gridy=9;
-		gbc.gridheight=1;
-		gbc.gridwidth=GridBagConstraints.REMAINDER;
-		content.add(bSend, gbc);
-		
-		this.setContentPane(content);
-		
-		
-		this.setVisible(true);
-		
-	    this.pack();
-	  //  bSend.addActionListener(this);
-	    this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
+		gbc.gridwidth=12;
+	    gbc.fill = GridBagConstraints.BOTH;
+	    gbc.weightx = 0.8;
+	    gbc.weighty = 0.7;
+	    repartiteur.setConstraints(textReceivedScroller, gbc);
+	    interieur.add(textReceivedScroller); 
+	    
+	    gbc = new GridBagConstraints();
+	    gbc.gridx = 3;
+	    gbc.gridy = 7;
+	    gbc.gridwidth = 12;
+	    gbc.gridheight = 3;
+	    gbc.fill = GridBagConstraints.BOTH;
+	    gbc.weightx = 0.8;
+	    gbc.weighty = 0.3;
+	    repartiteur.setConstraints(textToSendScroller, gbc);
+	    interieur.add(textToSendScroller);
+
+	    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	    setSize(600,450);
+	    setVisible(true);
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		/*Object source = e.getSource();
-		if(source == connect){
-			nick = 	this.textNickname.getText();
-			gui.connect(nick);
+		Object source = e.getSource();
+		if(source == bSend){
+			mess = this.textToSend.getText();
+			this.textToSend.setText("");
+			userList = list.getSelectedValuesList();
+			//recupère item selectionne 
+			gui.message(mess, userList);
 			//ouvrir nouvelle fenetre 
-		}		*/
+		}	
+		else if(source == bDisconnect){
+			gui.disconnect();
+		}
 	}
 }

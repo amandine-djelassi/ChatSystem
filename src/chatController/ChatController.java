@@ -10,17 +10,24 @@ import chatGui.ChatControllerToChatGui;
 import chatGui.ChatGui;
 import chatNI.ChatControllerToChatNI;
 import chatNI.ChatNI;
+import model.User;
 
 public class ChatController implements ChatNiToChatController, ChatGuiToChatController{
-	static Hashtable<String, String> userlist;
+	static Hashtable<InetAddress, User> userlist;
 	private ChatControllerToChatNI ni;
 	private ChatControllerToChatGui gui;
+	private User user;
 	
 	//est-ce qu'on peut mettre dans le sd refreshlist 
 	public ChatController(ChatGui gui){
-		userlist = new Hashtable<String, String>();
-		userlist.put("localhost", "/127.0.0.1");
-		userlist.put("/127.0.0.1","localhost");
+		userlist = new Hashtable<InetAddress, User>();
+		try {
+			user = new User("localhost",InetAddress.getByName("localhost"));
+			userlist.put(InetAddress.getByName("localhost"),user);
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		ni = new ChatNI(this);
 		this.gui = gui;
 	}
@@ -31,25 +38,22 @@ public class ChatController implements ChatNiToChatController, ChatGuiToChatCont
 	}
 	
 	@Override
-	public void onHello(String nickname,InetAddress address) {
-		userlist.put(nickname, address.toString());
-		userlist.put(address.toString(),nickname);
-		gui.notifConnected(nickname);
+	public void onHello(User user) {
+		userlist.put(user.getAddress(), user);
+		gui.notifConnected(user);
 	}
 	
 	@Override
 	public void onBye(InetAddress address) {
-		String nickname = getNickname(userlist.get(address.toString()));
-		userlist.remove(address.toString());
-		userlist.remove(nickname);
-		gui.notifDisconnected(nickname);
+		userlist.remove(address);
+		gui.notifDisconnected(user);
 	}
 	
 	@Override
 	public void onMessage(InetAddress address, String message)
 	{
-		String add = address.toString();
-		gui.receiveMessage(getNickname(add),message);
+		user = userlist.get(address);
+		gui.receiveMessage(user,message);
 	}
 	
 	@Override
@@ -65,16 +69,11 @@ public class ChatController implements ChatNiToChatController, ChatGuiToChatCont
 	}
 	
 	@Override
-	public void askSendMessage(String nickname, String message)
+	public void askSendMessage(User user, String message)
 	{
-		try {
-			ni.sendMessage(getAdresse(nickname), message);
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+			ni.sendMessage(user.getAddress(), message);
 	}
-	
+	/*
 	public String getNickname(String add){
 		return (userlist.get(add.toString()));
 	}
@@ -83,7 +82,7 @@ public class ChatController implements ChatNiToChatController, ChatGuiToChatCont
 		String addresse = userlist.get(nickname);
 		return (InetAddress.getByName(addresse));
 	}
-
+*/
 	/*
 	public static void main (String args[]) {
 		ChatController ctr = new ChatController();

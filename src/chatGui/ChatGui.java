@@ -1,60 +1,67 @@
 package chatGui;
 
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-
-import javax.swing.*;
+import java.util.List;
 
 import chatController.ChatController;
 import chatController.ChatGuiToChatController;
+import model.User;
 
 public class ChatGui implements ChatControllerToChatGui{
 	
 	private ChatGuiToChatController ctrl;
 	private ConnectView cv;
 	private ChatView chatV;
-	public String[] userList = {"coco","popo","toto","lolo","momo"};
 	
 	public ChatGui(){
-		this.ctrl = new ChatController(this);
-		//fenetre connection 
+		this.ctrl = new ChatController(this); 
 		cv = new ConnectView(this);
 	}
-	/*si j'appuie sur connecter -> nouvelle fenetre -> send hello*/
 	
 	public void connect(String nickname){
-		ctrl.performConnect(nickname);
-		//changer le pannel
 		cv.setVisible(false);
 		chatV = new ChatView(this);
+		ctrl.performConnect(nickname);
+	}
+	
+	public void disconnect(){
+		ctrl.performDisconnect();
+		chatV.setVisible(false);
+		cv.setVisible(true);
+	}
+	
+	public void message(String message, List<User> user){ 
+		for(int i=0; i<user.size(); i++){
+			ctrl.askSendMessage(user.get(i), message);
+			chatV.textReceived.setText(chatV.textReceived.getText() + user.get(i) + " ");
+		}
+		chatV.textReceived.setText(chatV.textReceived.getText() + ": " + message + "\n");
 	}
 	
 	@Override
-	public void receiveMessage(String nickname, String message)
+	public void receiveMessage(User user, String message)
 	{
-		System.out.println(nickname + " envoie : " + message);
+		chatV.textReceived.setText(chatV.textReceived.getText() + user.getNickname() + " : " + message + "\n");
+		System.out.println(user.getNickname() + " envoie : " + message);
 	}
 	
 	@Override
-	public void notifConnected(String nickname)
+	public void notifConnected(User user)
 	{
-		System.out.println("Hello de : " + nickname);
+		chatV.textReceived.setText(user.getNickname()+ " s'est connecté \n");
+		//chatV.refreshUserList(); FAIRE UN LISTENER A LA PLACE !!!!
 	}
 	
 	@Override
-	public void notifDisconnected(String nickname)
+	public void notifDisconnected(User user)
 	{
-		System.out.println("Bye de : " + nickname);
+		chatV.textReceived.setText(chatV.textReceived.getText() + user.getNickname() +" s'est déconnecté \n");
+		System.out.println("Bye de : " + user.getNickname());
 	}
-
+	
+	
 	public static void main (String args[]) {
 		ChatGui gui = new ChatGui();
 	}
-	
-	public String[] getUserList(){
-		return userList;
-	}
+
 	
 }
