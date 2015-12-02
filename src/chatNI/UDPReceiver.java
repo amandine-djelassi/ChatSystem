@@ -40,10 +40,9 @@ public class UDPReceiver extends Thread{
 				
 					case HELLO:
 					UDPPacketHello h = new UDPPacketHello(obj);
-					chatNI.hello(h.getNickname(),h.getReqReply(), add );
-					System.out.println("hello "+h.getNickname());
-					
-						break; 
+					System.out.println("UDPReceiver - nickname : "+h.getNickname()+" - ReqReply : "+h.getReqReply()+" - addresse : "+add+"\n");
+					chatNI.hello(h.getNickname(),h.getReqReply(), add);
+					break; 
 					case BYE: 
 					chatNI.bye(add);
 					break;

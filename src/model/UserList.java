@@ -2,8 +2,9 @@ package model;
 
 import java.net.InetAddress;
 import java.util.HashMap;
+import java.util.Observable;
 
-public class UserList{
+public class UserList extends Observable{
 	
 	private HashMap<InetAddress, User> userList;
 	InetAddress address;
@@ -23,6 +24,10 @@ public class UserList{
 	
 	public User get(InetAddress address){
 		return userList.get(address);
+	}
+	
+	public void setChanged(){
+		
 	}
 	
 }

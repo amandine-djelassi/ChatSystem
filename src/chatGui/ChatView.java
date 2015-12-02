@@ -18,7 +18,7 @@ public class ChatView extends JFrame implements ActionListener{
 	private String mess;
 	private ChatGui gui;
 	private JList list;
-	private DefaultListModel<String> listModel;
+	private DefaultListModel<User> listModel;
 	private List<User> userList; 
 	
 	public ChatView(ChatGui gui){
@@ -26,16 +26,17 @@ public class ChatView extends JFrame implements ActionListener{
 		initComponent();
 	}
 	
-	public void refreshUserList(List<String> userList) {
-		listModel.removeAllElements();
-		for(String user : userList){
+	public void addToUserList(User user) {
 			listModel.addElement(user);
-		}
+	}
+	
+	public void removeFromUserList(User user){
+		listModel.removeElement(user);
 	}
 	
 	private void initComponent(){
-		listModel = new DefaultListModel<String>();
-		list = new JList<String>();
+		listModel = new DefaultListModel<User>();
+		list = new JList(listModel);
 		list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		list.setLayoutOrientation(JList.VERTICAL);
 		JScrollPane listScroller = new JScrollPane(list);

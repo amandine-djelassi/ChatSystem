@@ -14,6 +14,7 @@ public class UDPSender {
 	public void sendUDP(UDPPacket udpPacket, InetAddress address) {
 		try {
 			byte[] b = udpPacket.toString().getBytes(Charset.forName("UTF-8"));
+			System.out.println("creation du paquet UDP et envoie à l'adresse : "+address.toString()+"\n");
 			DatagramPacket packet = new DatagramPacket(b, b.length, address,
 					UDPReceiver.PORT);
 			this.socket.send(packet);

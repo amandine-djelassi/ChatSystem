@@ -27,9 +27,6 @@ public class UDPPacketHello extends UDPPacket{
 		this.reqReply = obj.getBoolean("reqReply");
 	}
 	
-	
-	
-	
 	@Override 
 	public JSONObject toJSON(){
 		JSONObject obj = super.toJSON();
