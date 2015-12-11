@@ -34,13 +34,10 @@ public class UDPReceiver extends Thread{
 				s = new String(packet.getData(),0,packet.getLength());
 				InetAddress add = packet.getAddress();
 				JSONObject obj = new JSONObject(s);
-				UDPPacket UDP_P = new UDPPacket(obj);
-							
+				UDPPacket UDP_P = new UDPPacket(obj);		
 				switch (UDP_P.getType()){
-				
 					case HELLO:
 					UDPPacketHello h = new UDPPacketHello(obj);
-					System.out.println("UDPReceiver - nickname : "+h.getNickname()+" - ReqReply : "+h.getReqReply()+" - addresse : "+add+"\n");
 					chatNI.hello(h.getNickname(),h.getReqReply(), add);
 					break; 
 					case BYE: 
@@ -49,14 +46,15 @@ public class UDPReceiver extends Thread{
 					case MESSAGE: UDPPacketMessage m = new UDPPacketMessage(obj);
 					chatNI.message(add,m.getMessage());
 					break;
+					case FILE_REQUEST: UDPPacketFileRequest f = new UDPPacketFileRequest(obj);
+					chatNI.fileResponse(add,f.getNameFile(), f.getTimestamp());
+					break;
+					case FILE_REQUEST_RESPONSE: UDPPacketFileRequestResponse fr = new UDPPacketFileRequestResponse(obj) ;
+					chatNI.fileRequestResponse(add,fr.getOk(),fr.getTimestamp());
+					break;
 					default: System.out.print("def");
 					break;	
-				}
-				
-				
-				
-				//on a un string -> on peut transformer en message et le renvoyer au chat ni 
-				
+				}		
 			} catch (IOException e) {
 				System.out.println("packet not receive in UDPReceiver" + e);
 			}
@@ -66,13 +64,5 @@ public class UDPReceiver extends Thread{
 	public DatagramSocket getSocket() {
 		return socket;
 	}
-	
-	/*public static void main(String[] args){
-		UDPReceiver receive = new UDPReceiver();
-		receive.start();
-		UDPSender sender = new UDPSender(receive.getSocket());
-		sender.sendUDP("hello");
-	}*/
-	
 }
 	

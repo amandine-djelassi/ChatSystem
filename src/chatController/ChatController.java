@@ -1,5 +1,6 @@
 package chatController;
 
+import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Hashtable;
@@ -13,17 +14,11 @@ public class ChatController  implements ChatNiToChatController, ChatGuiToChatCon
 	private Hashtable<InetAddress, User> userlist;
 	private ChatControllerToChatNI ni;
 	private ChatControllerToChatGui gui;
-	private User user;
+	private User currentUser;
 	
 	public ChatController(ChatGui gui)
 	{
 		userlist = new Hashtable<InetAddress, User>();
-		try {
-			user = new User("localhost",InetAddress.getByName("localhost"));
-		} catch (UnknownHostException e) {
-			System.out.println("address doesnt exist");
-			e.printStackTrace();
-		}
 		ni = new ChatNI(this);
 		this.gui = gui;
 	}
@@ -34,31 +29,50 @@ public class ChatController  implements ChatNiToChatController, ChatGuiToChatCon
 	}
 	
 	@Override
-	public void onHello(User user) 
+	public void onHello(String nickname, Boolean reqReply, InetAddress address) 
 	{
-		userlist.put(user.getAddress(), user);
-		gui.notifConnected(user);
+		User tempUser;
+		if(reqReply && !nickname.equals(currentUser.getNickname())){
+			ni.sendHelloToOne(currentUser.getNickname(), address);
+		}
+		tempUser = new User(nickname, address);
+		userlist.put(tempUser.getAddress(), tempUser);
+		gui.notifConnected(tempUser);
 	}
 	
 	@Override
 	public void onBye(InetAddress address) 
 	{
+		User tempUser;
+		tempUser = userlist.get(address);
 		userlist.remove(address);
-		gui.notifDisconnected(user);
+		gui.notifDisconnected(tempUser);
 	}
 	
 	@Override
 	public void onMessage(InetAddress address, String message)
 	{
-		user = userlist.get(address);
-		gui.receiveMessage(user,message);
+		User tempUser;
+		tempUser = userlist.get(address);
+		gui.receiveMessage(tempUser,message);
+	}
+	
+	public void onFile(InetAddress address, File file){
+		User tempUser;
+		tempUser = userlist.get(address);
+		gui.receiveFile(tempUser, file);
 	}
 	
 	@Override
 	public void performConnect(String nickname)
 	{
-		System.out.println("ChatController - performConnect - nickname : "+nickname+"\n");
-		ni.sendHello(nickname,true);
+		try {
+			currentUser = new User(nickname, InetAddress.getByName("localhost"));
+			userlist.put(currentUser.getAddress(), currentUser);
+		} catch (UnknownHostException e) {
+			System.out.println("address doesnt exist");
+		}
+		ni.sendHelloToAll(nickname);
 	}
 	
 	@Override
@@ -67,9 +81,25 @@ public class ChatController  implements ChatNiToChatController, ChatGuiToChatCon
 		ni.sendBye();
 	}
 	
+	public void askSendFile(User user, File file)
+	{
+		ni.sendFileRequest(user.getAddress(),file);
+	}
+	
 	@Override
 	public void askSendMessage(User user, String message)
 	{
-			ni.sendMessage(user.getAddress(), message);
+		ni.sendMessage(user.getAddress(), message);
+	}
+	
+	public void askReceiveFile(InetAddress add, String nameFile, int timestamp){
+		User tempUser;
+		tempUser = userlist.get(add);
+		gui.askReceiveFile(tempUser, nameFile, timestamp);
+	}
+
+	@Override
+	public void reponseFile(boolean b, String path, User user, int timestamp) {
+		ni.fileRequest(user.getAddress(), b, timestamp, path);
 	}
 }

@@ -3,7 +3,7 @@ import org.json.*;
 
 public class UDPPacket {
 	
-	protected enum typeMessage {HELLO , BYE , MESSAGE } ; //, FILE_REQUEST, FILE_REQUEST_RESPONSE};
+	protected enum typeMessage {HELLO , BYE , MESSAGE, FILE_REQUEST, FILE_REQUEST_RESPONSE} ; //estce que c le bon nom ???
 	private typeMessage type; //pr recevoir le num du type on marque type.ordinal
 
 	public UDPPacket(typeMessage type){
