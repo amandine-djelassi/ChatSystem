@@ -52,7 +52,7 @@ public class UDPReceiver extends Thread{
 					case FILE_REQUEST_RESPONSE: UDPPacketFileRequestResponse fr = new UDPPacketFileRequestResponse(obj) ;
 					chatNI.fileRequestResponse(add,fr.getOk(),fr.getTimestamp());
 					break;
-					default: System.out.print("def");
+					default: System.out.print("default");
 					break;	
 				}		
 			} catch (IOException e) {

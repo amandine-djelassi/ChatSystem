@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Enumeration;
 import java.util.Hashtable;
 
 import org.json.JSONObject;
@@ -31,26 +32,9 @@ public class ChatNI implements  FromToRemoteApp, ChatControllerToChatNI{
 		this.fileList = new Hashtable<Integer, File>();
 		tcps.start();
 	}
+	/////////////////////////////////////// Connection ///////////////////////////////////////
 	
-	public void hello(String nickname, Boolean reqReply, InetAddress address){
-		niToController.onHello(nickname, reqReply, address);
-	}
-	
-	public void message(InetAddress address, String message){
-		niToController.onMessage(address, message);
-	}		
-
-	public void bye(InetAddress address){
-		niToController.onBye(address);
-	} 
-	
-	@Override
-	public void sendMessage(InetAddress address, String message)
-	{
-		UDPPacketMessage udpMessage = new UDPPacketMessage(message);	
-		sender.sendUDP(udpMessage, address);
-	}
-	
+	//The user log in 
 	@Override
 	public void sendHelloToAll(String nickname){
 		UDPPacketHello udpHello = new UDPPacketHello(nickname, true);
@@ -62,12 +46,21 @@ public class ChatNI implements  FromToRemoteApp, ChatControllerToChatNI{
 		}
 	}
 	
+	//An other user log in 
+	public void hello(String nickname, Boolean reqReply, InetAddress address){
+		niToController.onHello(nickname, reqReply, address);
+	}
+	
+	//The user send back an hello to the new user
 	@Override
 	public void sendHelloToOne(String nickname, InetAddress address){
 		UDPPacketHello udpHello = new UDPPacketHello(nickname, false);
 		sender.sendUDP(udpHello, address);
 	}
 	
+	/////////////////////////////////////// Disconnection ///////////////////////////////////////
+	
+	//The user log out
 	@Override
 	public void sendBye(){
 		UDPPacketBye udpB = new UDPPacketBye();
@@ -79,6 +72,29 @@ public class ChatNI implements  FromToRemoteApp, ChatControllerToChatNI{
 		}
 	}
 	
+	//An other user log out
+	public void bye(InetAddress address){
+		niToController.onBye(address);
+	} 
+	
+	/////////////////////////////////////// Message ///////////////////////////////////////
+	
+	//The user send a message
+	@Override
+	public void sendMessage(InetAddress address, String message)
+	{
+		UDPPacketMessage udpMessage = new UDPPacketMessage(message);	
+		sender.sendUDP(udpMessage, address);
+	}
+	
+	//The user receive a message
+	public void message(InetAddress address, String message){
+		niToController.onMessage(address, message);
+	}		
+	
+	/////////////////////////////////////// File ///////////////////////////////////////
+	
+	//The user send a file
 	@Override
 	public void sendFileRequest(InetAddress add, File file)
 	{
@@ -88,29 +104,27 @@ public class ChatNI implements  FromToRemoteApp, ChatControllerToChatNI{
 		sender.sendUDP(UDPFR,add);
 	}
 	
-	public void fileResponse(InetAddress add, String nameFile, int timestamp) {
-		niToController.askReceiveFile(add, nameFile, timestamp);
-	}
-
-
+	//The user receive a response about the file he send
 	public void fileRequestResponse(InetAddress add, boolean ok, int timestamp) {
-		if (fileList.contains(timestamp) && ok)
+		if (fileList.containsKey(timestamp)){
+			File file = fileList.get(timestamp);
+			niToController.receivedFileResponse(add, ok, file);
+		}
+		if (fileList.containsKey(timestamp) && ok)
 		{
 			File file = fileList.get(timestamp);
 			TCPSender tcps = new TCPSender(add,file);
 			tcps.start();
 			fileList.remove(timestamp);
-		}
+		}		
 	}
 	
-	public File getFileToReceived(){
-		return this.fichier;
+	//The user receive a request about receiving a file
+	public void fileResponse(InetAddress add, String nameFile, int timestamp) {
+		niToController.askReceiveFile(add, nameFile, timestamp);
 	}
 	
-	public void file(InetAddress add, File file){
-		niToController.onFile(add, file);
-	}
-
+	//The user send his response about receiving a file
 	@Override
 	public void fileRequest(InetAddress address, boolean b, int timestamp, String path) {	
 		if(b){
@@ -125,5 +139,15 @@ public class ChatNI implements  FromToRemoteApp, ChatControllerToChatNI{
 		UDPPacketFileRequestResponse UDPF = new UDPPacketFileRequestResponse(b, timestamp);
 		sender.sendUDP(UDPF, address);
 	} 
+	
+	//The user receive the file he accept 
+	public void file(InetAddress add, File file){
+		niToController.onFile(add, file);
+	}
+
+	//Getter 
+	public File getFileToReceived(){
+		return this.fichier;
+	}
 }
 

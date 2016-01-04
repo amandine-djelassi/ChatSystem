@@ -9,6 +9,7 @@ public interface ChatControllerToChatGui {
 	public void notifConnected(User user);
 	public void notifDisconnected(User user);
 	public void receiveFile(User user, File file);
-	public void askReceiveFile(User tempUser, String nameFile, int timestamp);
+	public void askReceiveFile(User user, String nameFile, int timestamp);
+	public void fileResponse(User user, Boolean b, File file);
 
 }

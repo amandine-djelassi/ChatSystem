@@ -25,7 +25,7 @@ public class ChatView extends JFrame implements ActionListener{
 	private JList list;
 	private DefaultListModel<User> listModel;
 	private List<User> userList; 
-	
+
 	public ChatView(ChatGui gui){
 		this.gui = gui;
 		initComponent();
@@ -46,37 +46,43 @@ public class ChatView extends JFrame implements ActionListener{
 	}
 	
 	private void initComponent(){
+		//disconnect button
+		bDisconnect = new JButton ("Disconnect");
+		bDisconnect.addActionListener(this);
+		disconnect = new JPanel();
+		disconnect.setOpaque(false);
+		
+		//User List 
 		listModel = new DefaultListModel<User>();
 		list = new JList(listModel);
 		list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		list.setLayoutOrientation(JList.VERTICAL);
 		JScrollPane listScroller = new JScrollPane(list);
-		listScroller.setBorder(null);
+		listScroller.setBorder(BorderFactory.createLineBorder(Color.getHSBColor(0.6f, 0.5f, 0.5f)));
 		
+		//Send message button
 		bSend = new JButton ("Send message");
 		bSend.addActionListener(this);
 		send = new JPanel();
-		send.setBackground(Color.WHITE);
+		send.setOpaque(false);
 
-		bDisconnect = new JButton ("Disconnect");
-		bDisconnect.addActionListener(this);
-		disconnect = new JPanel();
-		disconnect.setBackground(Color.WHITE);
-		
+		//Send File button
 		bSendFile = new JButton ("Send a file");
 		bSendFile.addActionListener(this);
-
+		
+		//Text to send text area
 		textToSend = new JTextArea();
 		textToSend.setLineWrap(true);
-		textToSend.setBorder(BorderFactory.createLineBorder(Color.black));
+		textToSend.setBorder(BorderFactory.createLineBorder(Color.getHSBColor(0.6f, 0.5f, 0.5f)));
 		textToSend.addKeyListener(keyListener);
 		JScrollPane textToSendScroller = new JScrollPane(textToSend);
-		
+		 
+		//text received text area
 		textReceived = new JTextArea();
 		textReceived.setLineWrap(true);	
 		textReceived.setEnabled(false);
 		textReceived.setDisabledTextColor(Color.BLACK);
-		textReceived.setBorder(BorderFactory.createLineBorder(Color.black));
+		textReceived.setBorder(BorderFactory.createLineBorder(Color.getHSBColor(0.6f, 0.5f, 0.5f)));
 		JScrollPane textReceivedScroller = new JScrollPane(textReceived);
 		
 		this.setTitle("Chat System");
@@ -150,6 +156,7 @@ public class ChatView extends JFrame implements ActionListener{
 	    gbc.fill = GridBagConstraints.BOTH;
 	    gbc.weightx = 0.15;
 	    gbc.weighty = 0.7;
+	    gbc.insets = new Insets(0, 10, 0, 10);
 	    repartiteur.setConstraints(listScroller, gbc);
 	    interieur.add(listScroller);
 	    
@@ -161,6 +168,7 @@ public class ChatView extends JFrame implements ActionListener{
 	    gbc.fill = GridBagConstraints.BOTH;
 	    gbc.weightx = 0.85;
 	    gbc.weighty = 0.7;
+	    gbc.insets = new Insets(10, 0, 5, 10);
 	    repartiteur.setConstraints(textReceivedScroller, gbc);
 	    interieur.add(textReceivedScroller); 
 	    
@@ -172,6 +180,7 @@ public class ChatView extends JFrame implements ActionListener{
 	    gbc.fill = GridBagConstraints.BOTH;
 	    gbc.weightx = 0.85;
 	    gbc.weighty = 0.3;
+	    gbc.insets = new Insets(5, 0, 10, 10);
 	    repartiteur.setConstraints(textToSendScroller, gbc);
 	    interieur.add(textToSendScroller);
 
@@ -183,7 +192,8 @@ public class ChatView extends JFrame implements ActionListener{
 	    });
 	    setSize(600,450);
 	    java.awt.Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize(); 
-	    this.setLocation((screenSize.width-this.getWidth())/2,(screenSize.height-this.getHeight())/2);    
+	    this.setLocation((screenSize.width-this.getWidth())/2,(screenSize.height-this.getHeight())/2);   
+	    interieur.setBackground(Color.getHSBColor(0.6f, 0.5f, 1f)); 
 	    setVisible(true);
 	}
 
